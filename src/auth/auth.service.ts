@@ -50,7 +50,10 @@ export class AuthService {
 
     const { password, ...resUser } = user;
 
-    return { token, user: resUser };
+    return {
+      message: 'Sesión iniciada con éxito',
+      data: { token, user: resUser },
+    };
   }
 
   async registerUser(registerUserDto: RegisterUserDto) {
@@ -72,6 +75,7 @@ export class AuthService {
     return {
       message:
         '¡Te has registrado con éxito!. Te hemos enviado un correo de confirmación.',
+      data: null,
     };
   }
 
@@ -84,7 +88,7 @@ export class AuthService {
     user.password = this.bcryptAdapter.hash(changePasswordDto.password);
     await this.userRepository.update(user.id, user);
 
-    return { message: 'Contraseña actualizada' };
+    return { message: 'Contraseña actualizada', data: null };
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto) {
@@ -99,6 +103,7 @@ export class AuthService {
     return {
       message:
         '¡Tu solicitud de cambio de contraseña ha sido enviada con éxito!',
+      data: null,
     };
   }
 
@@ -112,7 +117,7 @@ export class AuthService {
       from: process.env.MAIL_USER,
       subject: 'Bienvenido a FinTrack',
       html: `
-        <h1>Hola ${user.name}, bienvenido a FinTrack</h1>
+        <h1>Hola ${user.username}, bienvenido a FinTrack</h1>
         <p>Tu gestor de transacciones personales y financieras. Confirma tu cuenta para empezar:</p>
         <a href="${process.env.APP_URL}/auth/register/${token}">Confirmar cuenta</a>
       `,
@@ -154,6 +159,7 @@ export class AuthService {
     return {
       message:
         '¡Gracias por unirte a FinTrack, tu aliado para gestionar y optimizar tus transacciones!',
+      data: null,
     };
   }
 }
