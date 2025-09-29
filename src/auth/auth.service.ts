@@ -119,7 +119,7 @@ export class AuthService {
       html: `
         <h1>Hola ${user.username}, bienvenido a FinTrack</h1>
         <p>Tu gestor de transacciones personales y financieras. Confirma tu cuenta para empezar:</p>
-        <a href="${process.env.APP_URL}/auth/register/${token}">Confirmar cuenta</a>
+        <a href="${process.env.APP_URL}/register/${token}">Confirmar cuenta</a>
       `,
     });
   }
@@ -132,7 +132,7 @@ export class AuthService {
       html: `
         <h1>Cambio de contraseña</h1>
         <p>Para cambiar tu contraseña haz click en el siguiente enlace</p>
-        <a href="${process.env.APP_URL}/auth/change-password/${token}">Cambiar contraseña</a>
+        <a href="${process.env.APP_URL}/change-password/${token}">Cambiar contraseña</a>
       `,
     });
   }
