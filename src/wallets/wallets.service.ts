@@ -34,6 +34,16 @@ export class WalletsService {
       take: limit,
       skip: offset,
       relations: ['user'],
+      select: {
+        id: true,
+        name: true,
+        balance: true,
+        user: {
+          id: true,
+          username: true,
+          email: true,
+        },
+      },
     });
 
     return {
