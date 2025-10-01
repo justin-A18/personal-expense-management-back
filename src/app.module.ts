@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { validationHelper } from './config/helpers/validate-envs.helper';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { User } from './users/entities/user.entity';
+import { WalletsModule } from './wallets/wallets.module';
 
 @Module({
   imports: [
@@ -19,13 +19,14 @@ import { User } from './users/entities/user.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
-      entities: [User],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
     MailerModule.forRoot({
       transport: `smtps://${process.env.MAIL_USER}:${process.env.MAIL_PASS}@${process.env.MAIL_HOST}`,
     }),
     AuthModule,
+    WalletsModule,
   ],
   controllers: [],
   providers: [],

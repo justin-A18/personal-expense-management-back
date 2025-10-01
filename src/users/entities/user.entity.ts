@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Wallet } from 'src/wallets/entities/wallet.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
 export class User {
@@ -11,9 +12,12 @@ export class User {
   @Column('varchar', { length: 300, unique: true })
   email: string;
 
-  @Column('text')
+  @Column('text', { select: false })
   password: string;
 
   @Column('boolean', { default: false })
   isEmailVerified: boolean;
+
+  @OneToMany(() => Wallet, (wallet) => wallet.user, { cascade: true })
+  wallets: Wallet[];
 }
