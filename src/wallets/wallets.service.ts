@@ -38,6 +38,8 @@ export class WalletsService {
         id: true,
         name: true,
         balance: true,
+        avatar: true,
+        currency: true,
         user: {
           id: true,
           username: true,
