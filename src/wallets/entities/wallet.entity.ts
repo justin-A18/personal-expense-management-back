@@ -1,6 +1,13 @@
 import { CurrencyEnum } from 'src/config/enums/currency.enum';
+import { Transaction } from 'src/transactions/entities/transaction.entity';
 import { User } from 'src/users/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'wallets' })
 export class Wallet {
@@ -24,4 +31,9 @@ export class Wallet {
     enum: CurrencyEnum,
   })
   currency: string;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.wallet, {
+    onDelete: 'CASCADE',
+  })
+  transactions: Transaction[];
 }

@@ -32,21 +32,17 @@ export class WalletsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: CustomRequest) {
-    return this.walletsService.findOne(id, req.user.id);
+  findOne(@Param('id') id: string) {
+    return this.walletsService.findOne(id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateWalletDto: UpdateWalletDto,
-    @Req() req: CustomRequest,
-  ) {
-    return this.walletsService.update(id, updateWalletDto, req.user.id);
+  update(@Param('id') id: string, @Body() updateWalletDto: UpdateWalletDto) {
+    return this.walletsService.update(id, updateWalletDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: CustomRequest) {
-    return this.walletsService.remove(id, req.user.id);
+  remove(@Param('id') id: string) {
+    return this.walletsService.remove(id);
   }
 }

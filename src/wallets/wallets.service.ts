@@ -54,11 +54,8 @@ export class WalletsService {
     };
   }
 
-  async findOne(id: string, userId: string) {
-    const wallet = await this.walletRepository.findOneBy({
-      id,
-      user: { id: userId },
-    });
+  async findOne(id: string) {
+    const wallet = await this.walletRepository.findOneBy({ id });
 
     if (!wallet) {
       throw new NotFoundException(
@@ -72,11 +69,10 @@ export class WalletsService {
     };
   }
 
-  async update(id: string, updateWalletDto: UpdateWalletDto, userId: string) {
+  async update(id: string, updateWalletDto: UpdateWalletDto) {
     const wallet = await this.walletRepository.preload({
       ...updateWalletDto,
       id,
-      user: { id: userId },
     });
 
     if (!wallet) {
@@ -93,8 +89,8 @@ export class WalletsService {
     };
   }
 
-  async remove(id: string, userId: string) {
-    const wallet = await this.findOne(id, userId);
+  async remove(id: string) {
+    const wallet = await this.findOne(id);
     await this.walletRepository.remove(wallet.data);
 
     return {

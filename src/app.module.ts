@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { validationHelper } from './config/helpers/validate-envs.helper';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WalletsModule } from './wallets/wallets.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WalletsModule } from './wallets/wallets.module';
     }),
     AuthModule,
     WalletsModule,
+    TransactionsModule,
   ],
   controllers: [],
   providers: [],
