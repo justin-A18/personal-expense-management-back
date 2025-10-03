@@ -9,7 +9,7 @@ import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
 
 export class CreateTransactionDto {
   @IsEnum(TYPE_TRANSACTION)
-  type: string;
+  type: TYPE_TRANSACTION;
 
   @IsString()
   @MaxLength(500)
@@ -23,7 +23,4 @@ export class CreateTransactionDto {
 
   @IsString()
   walletId: string;
-
-  @IsString()
-  category: string;
 }

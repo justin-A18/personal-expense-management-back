@@ -6,6 +6,7 @@ import { validationHelper } from './config/helpers/validate-envs.helper';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { WalletsModule } from './wallets/wallets.module';
 import { TransactionsModule } from './transactions/transactions.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     AuthModule,
     WalletsModule,
     TransactionsModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],

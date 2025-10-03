@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './entities/transaction.entity';
 import { FindAllTransactionDto } from './dto/find-all-transaction.dto';
 import { WalletsService } from 'src/wallets/wallets.service';
+import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -16,7 +18,21 @@ export class TransactionsService {
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
-    await this.walletsService.findOne(createTransactionDto.walletId);
+    const { data: wallet } = await this.walletsService.findOne(
+      createTransactionDto.walletId,
+    );
+
+    const amount = parseFloat(createTransactionDto.amount);
+    let newBalance = parseFloat(wallet.balance);
+
+    if (createTransactionDto.type === TYPE_TRANSACTION.INCOME) {
+      newBalance += amount;
+    } else if (createTransactionDto.type === TYPE_TRANSACTION.EXPENSE) {
+      if (newBalance < amount) {
+        throw new NotFoundException('No tienes suficiente dinero');
+      }
+      newBalance -= amount;
+    }
 
     const transaction = this.TransactionsRepository.create({
       ...createTransactionDto,
@@ -25,15 +41,21 @@ export class TransactionsService {
 
     await this.TransactionsRepository.save(transaction);
 
+    wallet.balance = newBalance.toFixed(2);
+    await this.walletsService.update(wallet.id, { balance: wallet.balance });
+
     return {
-      message: 'Transaccion creada correctamente',
+      message: 'Transacción creada correctamente',
       data: transaction,
     };
   }
 
-  async findAll(findAllTransactionDto: FindAllTransactionDto) {
-    const { walletId, category, type, date, orderBy, limit, offset } =
-      findAllTransactionDto;
+  async findAll(
+    findAllTransactionDto: FindAllTransactionDto,
+    params: PaginationDto,
+  ) {
+    const { walletId, category, type, date, orderBy } = findAllTransactionDto;
+    const { limit = 10, offset = 0 } = params;
 
     await this.walletsService.findOne(walletId);
 
@@ -59,14 +81,20 @@ export class TransactionsService {
       queryBuilder.orderBy('transaction.date', orderBy);
     }
 
-    queryBuilder.limit(limit ?? 10);
-    queryBuilder.offset(offset ?? 0);
+    queryBuilder.limit(limit);
+    queryBuilder.offset(offset);
 
-    const transactions = await queryBuilder.getMany();
+    const [transactions, totalElements] = await queryBuilder.getManyAndCount();
+
+    const totalPages = Math.ceil(totalElements / limit);
 
     return {
       message: 'Se obtuvieron las transacciones correctamente',
-      data: transactions,
+      data: {
+        content: transactions,
+        totalElements,
+        totalPages,
+      },
     };
   }
 
