@@ -1,6 +1,6 @@
 import { IsDateString, IsUUID } from 'class-validator';
 
-export class FindWeeklyReportDto {
+export class ReportDto {
   @IsUUID()
   walletId: string;
 
