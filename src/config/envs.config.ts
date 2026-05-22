@@ -12,4 +12,5 @@ export const envs = z.object({
   MAIL_HOST: z.string(),
   APP_URL: z.string().default('http://localhost:3001'),
   JWT_SECRET: z.string(),
+  NODE_ENV: z.string().default('development'),
 });

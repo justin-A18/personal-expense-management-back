@@ -18,10 +18,10 @@ export class ReportsService {
     private readonly walletsService: WalletsService,
   ) {}
 
-  async findWeeklyReport(findWeeklyReportDto: ReportByTypeDto) {
+  async findWeeklyReport(findWeeklyReportDto: ReportByTypeDto, userId: string) {
     const { from, to, walletId, type } = findWeeklyReportDto;
 
-    await this.walletsService.findOne(walletId);
+    await this.walletsService.findOne(walletId, userId);
 
     const rawReport = await this.TransactionsRepository.query<ReportRow[]>(
       `WITH dias AS (
@@ -56,8 +56,10 @@ export class ReportsService {
     };
   }
 
-  async findMonthlyReport(findMonthlyReportDto: ReportDto) {
+  async findMonthlyReport(findMonthlyReportDto: ReportDto, userId: string) {
     const { from, to, walletId } = findMonthlyReportDto;
+
+    await this.walletsService.findOne(walletId, userId);
 
     const rawReport = await this.TransactionsRepository.query<
       ReportMonthTransaction[]

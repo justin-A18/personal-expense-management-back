@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateWalletDto } from './dto/create-wallet.dto';
-import { UpdateWalletDto } from './dto/update-wallet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { PaginationDto } from 'src/common/dto/pagination.dto';
+import type { Repository } from 'typeorm';
+import type { CreateWalletDto } from './dto/create-wallet.dto';
+import type { UpdateWalletDto } from './dto/update-wallet.dto';
 import { Wallet } from './entities/wallet.entity';
-import { Repository } from 'typeorm';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class WalletsService {
@@ -54,8 +54,13 @@ export class WalletsService {
     };
   }
 
-  async findOne(id: string) {
-    const wallet = await this.walletRepository.findOneBy({ id });
+  async findOne(id: string, userId?: string) {
+    const wallet = await this.walletRepository.findOne({
+      where: {
+        id,
+        ...(userId ? { user: { id: userId } } : {}),
+      },
+    });
 
     if (!wallet) {
       throw new NotFoundException(
@@ -69,10 +74,12 @@ export class WalletsService {
     };
   }
 
-  async update(id: string, updateWalletDto: UpdateWalletDto) {
-    const wallet = await this.walletRepository.preload({
-      ...updateWalletDto,
-      id,
+  async update(id: string, updateWalletDto: UpdateWalletDto, userId?: string) {
+    const wallet = await this.walletRepository.findOne({
+      where: {
+        id,
+        ...(userId ? { user: { id: userId } } : {}),
+      },
     });
 
     if (!wallet) {
@@ -81,6 +88,7 @@ export class WalletsService {
       );
     }
 
+    Object.assign(wallet, updateWalletDto);
     await this.walletRepository.save(wallet);
 
     return {
@@ -89,8 +97,8 @@ export class WalletsService {
     };
   }
 
-  async remove(id: string) {
-    const wallet = await this.findOne(id);
+  async remove(id: string, userId?: string) {
+    const wallet = await this.findOne(id, userId);
     await this.walletRepository.remove(wallet.data);
 
     return {

@@ -1,4 +1,6 @@
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { CreateWalletDto } from './create-wallet.dto';
-import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateWalletDto extends PartialType(CreateWalletDto) {}
+export class UpdateWalletDto extends PartialType(
+  OmitType(CreateWalletDto, ['balance'] as const),
+) {}
