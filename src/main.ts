@@ -24,7 +24,7 @@ async function bootstrap() {
 
   app.enableCors({
     credentials: true,
-    origin: ['http://localhost:3001'],
+    origin: ['http://localhost:3001', 'https://personal-expense-management-six.vercel.app'],
   });
 
   app.useGlobalFilters(new HttpExceptionFilter());
