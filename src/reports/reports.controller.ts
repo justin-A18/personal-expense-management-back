@@ -13,6 +13,10 @@ import { ReportDto } from './dto/report.dto';
 import { ReportByTypeDto } from './dto/report-by-type.dto';
 import { ReportsService } from './reports.service';
 import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
+import {
+  TrendsComparisonMode,
+  TrendsReportDto,
+} from './dto/trends-report.dto';
 
 @ApiTags('Reports')
 @ApiBearerAuth('access-token')
@@ -21,6 +25,39 @@ import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
 @UseGuards(AuthGuard)
 export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
+
+  @Get('trends')
+  @ApiOperation({
+    summary: 'Tendencias financieras',
+    description:
+      'Compara un periodo actual contra un baseline para mostrar variaciones, rankings, distribución de gasto, patrón temporal e insights accionables.',
+  })
+  @ApiQuery({
+    name: 'walletId',
+    required: true,
+    example: '8a1fc2ce-4c7c-4d89-8b6f-11ef63d2ef09',
+  })
+  @ApiQuery({ name: 'from', required: true, example: '2026-05-01' })
+  @ApiQuery({ name: 'to', required: true, example: '2026-05-31' })
+  @ApiQuery({
+    name: 'comparisonMode',
+    required: true,
+    enum: TrendsComparisonMode,
+    example: TrendsComparisonMode.PREVIOUS_PERIOD,
+  })
+  @ApiOkResponse({
+    description:
+      'Tendencias calculadas correctamente con comparación, distribución e insights.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Billetera inexistente o ajena al usuario.',
+  })
+  findTrends(
+    @Query() trendsReportDto: TrendsReportDto,
+    @Req() req: CustomRequest,
+  ): Promise<unknown> {
+    return this.reportsService.findTrends(trendsReportDto, req.user.id);
+  }
 
   @Get('weekly-report')
   @ApiOperation({

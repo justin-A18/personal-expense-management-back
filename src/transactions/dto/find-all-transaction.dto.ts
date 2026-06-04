@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ORDER_BY } from 'src/config/enums/order-by.enum';
 import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
 
-export class FindAllTransactionDto {
+export class FindAllTransactionDto extends PaginationDto {
   @ApiProperty({
     description: 'UUID de la billetera del usuario autenticado.',
     example: '8a1fc2ce-4c7c-4d89-8b6f-11ef63d2ef09',

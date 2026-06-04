@@ -1,4 +1,5 @@
 import { CurrencyEnum } from 'src/config/enums/currency.enum';
+import { Category } from 'src/categories/entities/category.entity';
 import { Transaction } from 'src/transactions/entities/transaction.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -36,4 +37,7 @@ export class Wallet {
     onDelete: 'CASCADE',
   })
   transactions: Transaction[];
+
+  @OneToMany(() => Category, (category) => category.wallet)
+  categories: Category[];
 }

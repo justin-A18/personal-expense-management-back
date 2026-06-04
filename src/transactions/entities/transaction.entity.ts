@@ -1,3 +1,4 @@
+import { Category } from 'src/categories/entities/category.entity';
 import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
 import { Wallet } from 'src/wallets/entities/wallet.entity';
 import {
@@ -33,6 +34,9 @@ export class Transaction {
     onDelete: 'CASCADE',
   })
   wallet: Wallet;
+
+  @ManyToOne(() => Category, (category) => category.transactions)
+  category: Category;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

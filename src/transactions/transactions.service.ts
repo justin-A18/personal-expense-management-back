@@ -11,8 +11,8 @@ import { Transaction } from './entities/transaction.entity';
 import { FindAllTransactionDto } from './dto/find-all-transaction.dto';
 import { WalletsService } from 'src/wallets/wallets.service';
 import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Wallet } from 'src/wallets/entities/wallet.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Injectable()
 export class TransactionsService {
@@ -27,10 +27,17 @@ export class TransactionsService {
     const transaction = await this.dataSource.transaction(async (manager) => {
       const transactionRepository = manager.getRepository(Transaction);
       const walletRepository = manager.getRepository(Wallet);
+      const categoryRepository = manager.getRepository(Category);
+      const { walletId, categoryId, ...transactionData } = createTransactionDto;
       const wallet = await this.findWalletForUpdate(
-        createTransactionDto.walletId,
+        walletId,
         userId,
         walletRepository,
+      );
+      const category = await this.findCategoryForWallet(
+        categoryId,
+        wallet.id,
+        categoryRepository,
       );
 
       wallet.balance = this.calculateBalance(wallet.balance, [
@@ -38,8 +45,9 @@ export class TransactionsService {
       ]);
 
       const newTransaction = transactionRepository.create({
-        ...createTransactionDto,
+        ...transactionData,
         wallet,
+        category,
       });
 
       await walletRepository.save(wallet);
@@ -54,11 +62,10 @@ export class TransactionsService {
 
   async findAll(
     findAllTransactionDto: FindAllTransactionDto,
-    params: PaginationDto,
     userId: string,
   ) {
-    const { walletId, type, from, to, orderBy } = findAllTransactionDto;
-    const { limit = 10, offset = 0 } = params;
+    const { walletId, type, from, to, orderBy, limit = 10, offset = 0 } =
+      findAllTransactionDto;
 
     await this.walletsService.findOne(walletId, userId);
 
@@ -66,6 +73,7 @@ export class TransactionsService {
       'transaction',
     )
       .leftJoinAndSelect('transaction.wallet', 'wallet')
+      .leftJoinAndSelect('transaction.category', 'category')
       .where('wallet.id = :walletId', { walletId });
 
     if (type) {
@@ -110,7 +118,7 @@ export class TransactionsService {
         id,
         ...(userId ? { wallet: { user: { id: userId } } } : {}),
       },
-      relations: ['wallet'],
+      relations: ['wallet', 'category'],
     });
 
     if (!transaction) {
@@ -133,12 +141,13 @@ export class TransactionsService {
     const transaction = await this.dataSource.transaction(async (manager) => {
       const transactionRepository = manager.getRepository(Transaction);
       const walletRepository = manager.getRepository(Wallet);
+      const categoryRepository = manager.getRepository(Category);
       const currentTransaction = await transactionRepository.findOne({
         where: {
           id,
           wallet: { user: { id: userId } },
         },
-        relations: ['wallet'],
+        relations: ['wallet', 'category'],
       });
 
       if (!currentTransaction) {
@@ -147,7 +156,8 @@ export class TransactionsService {
         );
       }
 
-      const { walletId, ...transactionChanges } = updateTransactionDto;
+      const { walletId, categoryId, ...transactionChanges } =
+        updateTransactionDto;
       const originalWallet = await this.findWalletForUpdate(
         currentTransaction.wallet.id,
         userId,
@@ -158,12 +168,27 @@ export class TransactionsService {
           ? await this.findWalletForUpdate(walletId, userId, walletRepository)
           : originalWallet;
 
+      if (!categoryId && targetWallet.id !== originalWallet.id) {
+        throw new BadRequestException(
+          'Debes indicar una categoría de la nueva billetera',
+        );
+      }
+
+      const targetCategory = categoryId
+        ? await this.findCategoryForWallet(
+            categoryId,
+            targetWallet.id,
+            categoryRepository,
+          )
+        : currentTransaction.category;
+
       originalWallet.balance = this.calculateBalance(originalWallet.balance, [
         { transaction: currentTransaction, operation: 'revert' },
       ]);
 
       Object.assign(currentTransaction, transactionChanges, {
         wallet: targetWallet,
+        category: targetCategory,
       });
 
       targetWallet.balance = this.calculateBalance(targetWallet.balance, [
@@ -241,6 +266,24 @@ export class TransactionsService {
     }
 
     return wallet;
+  }
+
+  private async findCategoryForWallet(
+    id: string,
+    walletId: string,
+    categoryRepository: Repository<Category>,
+  ) {
+    const category = await categoryRepository.findOne({
+      where: { id, wallet: { id: walletId } },
+    });
+
+    if (!category) {
+      throw new NotFoundException(
+        `La categoría con ID ${id} no fue encontrada para la billetera indicada`,
+      );
+    }
+
+    return category;
   }
 
   private calculateBalance(

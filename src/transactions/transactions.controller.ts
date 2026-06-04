@@ -1,14 +1,14 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -23,14 +23,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { TransactionsService } from './transactions.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { FindAllTransactionDto } from './dto/find-all-transaction.dto';
 import { AuthGuard, type CustomRequest } from 'src/auth/guards/auth.guard';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ORDER_BY } from 'src/config/enums/order-by.enum';
 import { TYPE_TRANSACTION } from 'src/config/enums/type-transaction.enum';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FindAllTransactionDto } from './dto/find-all-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionsService } from './transactions.service';
 
 @ApiTags('Transactions')
 @ApiBearerAuth('access-token')
@@ -94,12 +93,10 @@ export class TransactionsController {
   })
   findAllByQuery(
     @Query() findAllTransactionDto: FindAllTransactionDto,
-    @Query() params: PaginationDto,
     @Req() req: CustomRequest,
   ) {
     return this.transactionsService.findAll(
       findAllTransactionDto,
-      params,
       req.user.id,
     );
   }
@@ -120,12 +117,10 @@ export class TransactionsController {
   })
   findAll(
     @Body() findAllTransactionDto: FindAllTransactionDto,
-    @Query() params: PaginationDto,
     @Req() req: CustomRequest,
   ) {
     return this.transactionsService.findAll(
       findAllTransactionDto,
-      params,
       req.user.id,
     );
   }

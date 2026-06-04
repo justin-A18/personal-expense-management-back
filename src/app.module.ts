@@ -3,8 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 import { validationHelper } from './config/helpers/validate-envs.helper';
 import { ReportsModule } from './reports/reports.module';
+import { SeedModule } from './seed/seed.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { WalletsModule } from './wallets/wallets.module';
 
@@ -31,6 +33,8 @@ import { WalletsModule } from './wallets/wallets.module';
     WalletsModule,
     TransactionsModule,
     ReportsModule,
+    CategoriesModule,
+    SeedModule,
   ],
   controllers: [],
   providers: [],

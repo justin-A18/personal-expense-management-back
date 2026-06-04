@@ -51,4 +51,11 @@ export class CreateTransactionDto {
   })
   @IsString()
   walletId: string;
+
+  @ApiProperty({
+    description: 'UUID de la categoría a la que pertenece la transacción.',
+    example: 'f2a8e270-14f1-4c69-a219-4b1704a3839f',
+  })
+  @IsString()
+  categoryId: string;
 }
